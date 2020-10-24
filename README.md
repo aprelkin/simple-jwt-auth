@@ -1,1 +1,1 @@
-# simpleAuth
+# Simple JWT Authentification
