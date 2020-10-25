@@ -11,7 +11,9 @@ const {databaseURL, mongooseParams} = require('./config');
 const index = require('./routes/ui/index');
 const users = require('./routes/ui/users');
 const login = require('./routes/ui/login');
+const signUp = require('./routes/ui/signup');
 const loginApi = require('./routes/api/login');
+const signUpApi = require('./routes/api/signup');
 
 const app = express();
 
@@ -30,7 +32,9 @@ app.use(bodyParser.json());
 app.use('/', index);
 app.use('/ui/users', users);
 app.use('/ui/login', login);
+app.use('/ui/signup', signUp);
 app.use('/api/login', loginApi);
+app.use('/api/signup', signUpApi);
 
 mongoose.connect(databaseURL, mongooseParams);
 

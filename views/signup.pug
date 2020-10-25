@@ -1,0 +1,33 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script.
+      const client = new XMLHttpRequest();
+      client.onload = () => {
+       if (client.status >= 200 && client.status < 300) {
+          //const response = JSON.parse(xhr.responseText);
+          console.log(client.status);
+        }
+      };
+      window.addEventListener('DOMContentLoaded', (event) => {
+        const button = document.getElementById("btn1");
+          button.onclick = () => { 
+           client.open("POST", "/api/signup/");
+           client.setRequestHeader("Content-Type", "application/json");
+           const email = document.getElementById("email").value;
+           const password = document.getElementById("password").value;           
+           // prevalidate passord & email
+           client.send(JSON.stringify({email, password}));
+          }
+      });
+  body
+    block content
+    input(type='text' placeholder='email adresse' size='20' maxlength=maxLoginPassLength id='email')
+    br
+    br
+    input(type='password' placeholder='password' size='20' maxlength=maxLoginPassLength id='password')
+    br
+    br
+    input(type='button' value='login' id='btn1')

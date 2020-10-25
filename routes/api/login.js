@@ -30,26 +30,32 @@ router.post('/', async function(req, res, next) {
       typ: 'JWT',
     };
 
-    const salt = await bcrypt.genSalt(auth.saltRounds);
-    const hash = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(auth.saltRounds);
+    // const hash = await bcrypt.hash(password, salt);
+    // console.log('password:' + password);
+    // console.log('hash:' + hash);
 
-    var newUserModel = new UserModel(
+    /*  var newUserModel = new UserModel(
       {
         email: email,
         password: hash,
-      });
+      }); */
 
-    const entity = await newUserModel.save();
+    // const entity = await newUserModel.save();
+
+    // console.log(entity);
 
     try {
-      const userEmail = await UserModel.findOne({email: email});
-      console.log(userEmail);
+      const user = await UserModel.findOne({email: email});
+      console.log(user);
+      const passordIsValid = await bcrypt.compare(password, user.password);
+      console.log(passordIsValid);
     } catch (err){
       console.log(err);
     }
 
     const payload = {
-      sub: '123456789',
+      sub: '123456',
       role: 'admin',
     };
 
@@ -59,8 +65,8 @@ router.post('/', async function(req, res, next) {
     //  Next, the consumer has to check the reserved "exp" and "nbf" claims to ensure that the JWT is valid.
     // Asynchronous Sign with default (HMAC SHA256)
 
-    const token = await jwt.sign(payload, auth.secret, { expiresIn: '1h' });
-    const decoded = await jwt.verify(token, auth.secret);
+    // const token = await jwt.sign(payload, auth.secret, { expiresIn: '1h' });
+    // const decoded = await jwt.verify(token, auth.secret);
 
     res.json({token: token});
   } catch (err) {
