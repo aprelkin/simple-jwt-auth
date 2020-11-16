@@ -3,11 +3,9 @@
 const express = require('express');
 const createError = require('http-errors');
 const mongoose = require('mongoose');
-
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { auth } = require('../../config');
-
 const UserModel = require('../../models/userModel');
 
 const router = express.Router();
@@ -22,59 +20,36 @@ router.post('/', async function(req, res, next) {
     return next(createError(401)); // Unauthorized
   }
 
-  // check secret by loading app
   try {
-    // db.getUserByEmail
-    const header = {
-      alg: 'HS256',
-      typ: 'JWT',
-    };
+    const user = await UserModel.findOne({email: email});
 
-    // const salt = await bcrypt.genSalt(auth.saltRounds);
-    // const hash = await bcrypt.hash(password, salt);
-    // console.log('password:' + password);
-    // console.log('hash:' + hash);
+    let hash = user ? user.hash : 'some hash for prevent timing attacks';
 
-    /*  var newUserModel = new UserModel(
-      {
-        email: email,
-        password: hash,
-      }); */
+    const isValid = await bcrypt.compare(password, hash);
 
-    // const entity = await newUserModel.save();
-
-    // console.log(entity);
-
-    try {
-      const user = await UserModel.findOne({email: email});
-      console.log(user);
-      const passordIsValid = await bcrypt.compare(password, user.password);
-      console.log(passordIsValid);
-    } catch (err){
-      console.log(err);
+    if (!isValid){
+      return next(createError(401));
     }
 
     const payload = {
-      sub: '123456',
+      sub: user._id,
       role: 'admin',
     };
 
+    const token = await jwt.sign(payload, auth.secret, { expiresIn: '1h' });
+    // const decoded = await jwt.verify(token, auth.secret);
+    res.json({token: token});
+
     // https://www.pingidentity.com/en/company/blog/posts/2019/jwt-security-nobody-talks-about.html
-    // save hash in db
     // here have to use some other secret imstead of password hash
     //  Next, the consumer has to check the reserved "exp" and "nbf" claims to ensure that the JWT is valid.
     // Asynchronous Sign with default (HMAC SHA256)
-
-    // const token = await jwt.sign(payload, auth.secret, { expiresIn: '1h' });
-    // const decoded = await jwt.verify(token, auth.secret);
-
-    res.json({token: token});
+    // secure https-only session cookie to store the JWT.
+    // Some methods suggest saving the token in res.locals instead of sending back to the client.
   } catch (err) {
+    console.log(err);
     next(err);
   }
-
-  // secure https-only session cookie to store the JWT.
-  // Some methods suggest saving the token in res.locals instead of sending back to the client.
 });
 
 module.exports = router;
