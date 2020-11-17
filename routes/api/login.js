@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { auth } = require('../../config');
 const UserModel = require('../../models/userModel');
-
 const router = express.Router();
 
 
@@ -22,9 +21,7 @@ router.post('/', async function(req, res, next) {
 
   try {
     const user = await UserModel.findOne({email: email});
-
     let hash = user ? user.hash : 'some hash for prevent timing attacks';
-
     const isValid = await bcrypt.compare(password, hash);
 
     if (!isValid){
